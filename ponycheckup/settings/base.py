@@ -109,6 +109,20 @@ LOGGING = {
 }
 
 
+LOGIN_URLS = [
+    'korisnici/prijava',
+    'users/login',
+    'users/prijava',
+    'accounts/login',
+    'login'
+]
+
+ADMIN_URLS = [
+    'admin',
+    'admin/'
+]
+
+
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
     try:

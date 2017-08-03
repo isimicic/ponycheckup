@@ -1,0 +1,6 @@
+{% for uri in urls %}
+    <em>/{{ uri }}</em>
+    {% if not forloop.last %}
+        or
+    {% endif %}
+{% endfor %}

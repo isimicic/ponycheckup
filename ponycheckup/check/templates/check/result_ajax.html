@@ -1,4 +1,6 @@
 {% load static %}
+{% load check_tags %}
+
 <h1>Pony checkup report for {{ check_record.url }}</h1>
 <br />
 
@@ -130,17 +132,18 @@
     </div>
 
     <div class="well">
+        {% get_settings_var 'ADMIN_URLS' as admin_urls %}
         <h3>HTTPS in admin</h3>
         {% if check_record.admin_found and check_record.admin_forces_https %}
             <div class="alert alert-success">
                 <h4 class="alert-heading"><i class="icon-ok"></i> Admin forces HTTPS</h4>
-                We found an admin on <em>/admin</em>, and it enforces the use of HTTPS.
+                We found an admin on {% include "check/includes/urls.html" with urls=admin_urls %}, and it enforces the use of HTTPS.
                 This is good, because it means you can not accidentally log in without encryption.
             </div>
         {% elif check_record.admin_found and not check_record.admin_forces_https %}
             <div class="alert alert-error">
                 <h4 class="alert-heading"><i class="icon-remove"></i> Admin not forcing HTTPS</h4>
-                We found an admin on <em>/admin</em>, but it does not enforce the use of HTTPS. This is a bad security
+                We found an admin on {% include "check/includes/urls.html" with urls=admin_urls %}, but it does not enforce the use of HTTPS. This is a bad security
                 practice even if HTTPS is available, because it makes it easy to make an error and accidentally
                 submit confidential information or authentication without encryption.
                 You can force the use of HTTPS by configuring your web server, or adding using the middleware from
@@ -149,7 +152,7 @@
         {% else %}
             <div class="alert alert-info">
                 <h4 class="alert-heading"><i class="icon-info-sign"></i> Admin not found</h4>
-                We could not find an admin on <em>/admin</em>.
+                We could not find an admin on {% include "check/includes/urls.html" with urls=admin_urls %}.
             </div>
         {% endif %}
         <p>The <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/">Django admin site</a> is a
@@ -160,16 +163,17 @@
 
     <div class="well">
         <h3>HTTPS for logins</h3>
+        {% get_settings_var 'LOGIN_URLS' as login_urls %}
         {% if check_record.login_found and check_record.login_forces_https %}
             <div class="alert alert-success">
                 <h4 class="alert-heading"><i class="icon-ok"></i> Login forces HTTPS</h4>
-                We found a login form on <em>/accounts/login</em> or <em>/login</em>, and it enforces the use of HTTPS.
+                We found a login form on {% include "check/includes/urls.html" with urls=login_urls %}, and it enforces the use of HTTPS.
                 This is good, because it means you can not accidentally log in without encryption.
             </div>
         {% elif check_record.login_found and not check_record.login_forces_https %}
             <div class="alert alert-error">
                 <h4 class="alert-heading"><i class="icon-remove"></i> Login not forcing HTTPS</h4>
-                We found a login form on <em>/accounts/login</em> or <em>/login</em>, but it does not enforce the use of HTTPS. This is a
+                We found a login form on {% include "check/includes/urls.html" with urls=login_urls %}, but it does not enforce the use of HTTPS. This is a
                 bad security practice even if HTTPS is available, because it makes it easy to make an error and accidentally
                 submit confidential information or authentication without encryption.
                 You can force the use of HTTPS by configuring your web server, or adding using the middleware from
@@ -178,7 +182,7 @@
         {% else %}
             <div class="alert alert-info">
                 <h4 class="alert-heading"><i class="icon-info-sign"></i> Login not found</h4>
-                We could not find a login form on <em>/accounts/login</em> or <em>/login</em>.
+                We could not find a login form on {% include "check/includes/urls.html" with urls=login_urls %}.
             </div>
         {% endif %}
         <p>If you use <a href="https://docs.djangoproject.com/en/dev/topics/auth/">Django's authentication</a>,

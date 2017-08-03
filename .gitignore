@@ -3,6 +3,7 @@
 
 virtualenv/
 .idea/workspace.xml
+*.sublime*
 
 # other
 static

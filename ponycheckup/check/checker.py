@@ -1,16 +1,19 @@
 # Create your views here.
+
+from django.conf import settings
+
 import socket
 from pyasn1.error import PyAsn1Error
 import requests
-from .heartbleed import test_heartbleed
-from .models import Check
-
 try:
     from OpenSSL.SSL import Error as SSLError
 except ImportError:
     # In development, we might not have OpenSSL - it's only needed for SNI
     class SSLError(Exception):
         pass
+
+from .heartbleed import test_heartbleed
+from .models import Check
 
 
 class SecurityChecker(object):
@@ -80,20 +83,22 @@ class SecurityChecker(object):
         return 'Content-Type' in response.headers and response.headers['Content-Type'] == "message/http"
 
     def check_admin(self, url):
-        response = self.session.get(url + "/admin", timeout=7)
-        if response.status_code == 404:
-            return (False, None)
-        data = response.content.lower()
-        admin_found = '"id_username"' in data and ("csrfmiddlewaretoken" in data or "Django" in data or "__admin_media_prefix__" in data)
-        return (admin_found, self._response_used_https(response))
+        for admin_url in settings.ADMIN_URLS:
+            response = self.session.get('{}/{}'.format(url, admin_url), timeout=7)
+            if response.status_code == 200:
+                data = response.content.lower()
+                admin_found = '"id_username"' in data and ("csrfmiddlewaretoken" in data or "Django" in data or "__admin_media_prefix__" in data)
+                return (admin_found, self._response_used_https(response))
+
+        return (False, None)
 
     def check_login(self, url):
-        response = self.session.get(url + "/accounts/login", timeout=7)
-        if response.status_code == 404:
-            response = self.session.get(url + "/login", timeout=7)
-            if response.status_code == 404:
-                return (False, None)
-        return (True, self._response_used_https(response))
+        for login_url in settings.LOGIN_URLS:
+            response = self.session.get('{}/{}'.format(url, login_url), timeout=7)
+            if response.status_code == 200:
+                return (True, self._response_used_https(response))
+
+        return (False, None)
 
     def _response_used_https(self, response):
         return response.url[:5] == "https"
